@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Google Driveの論文PDFから、ローカルLLMとCPU TTSで日本語の2話者Podcastとページ付き要約を生成する個人用アプリ。">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Paper-to-Podcast | 論文を日本語Podcastに</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">本文へスキップ</a>
+<header class="header"><div class="wrap">
+  <a class="brand" href="index.html"><img src="favicon.svg" width="32" height="32" alt="">Paper-to-Podcast</a>
+  <nav class="nav" aria-label="メインナビゲーション">
+    <a href="index.html" aria-current="page">アプリについて</a>
+    <a href="privacy.html">プライバシー</a>
+  </nav>
+</div></header>
+<main id="main" class="wrap">
+  <section class="hero" aria-labelledby="title">
+    <span class="tag">個人用 · ローカル推論</span>
+    <h1 id="title">論文を、<br>耳でたどる。</h1>
+    <p class="lead">Paper-to-Podcastは、Google Driveに保存した論文PDFをローカルPCで読み取り、日本語の2話者による解説音声と、ページ付きの要約を作成する個人用アプリです。</p>
+    <p>研究内容の予習・復習や、移動中の聞き返しを支援します。</p>
+    <div class="actions"><a class="button primary" href="privacy.html">データの取り扱いを確認</a><a class="button" href="#contact">お問い合わせ</a></div>
+  </section>
+  <section class="section" aria-labelledby="flow-title">
+    <p class="eyebrow">How it works</p><h2 id="flow-title">Driveから、ローカルPCへ。音声を、再びDriveへ。</h2>
+    <ol class="flow">
+      <li><span class="step">01 / INPUT</span><strong>PDFを保存</strong><p>利用者が、設定したDriveのInboxフォルダに論文PDFを置きます。</p></li>
+      <li><span class="step">02 / READ</span><strong>PCで内容を抽出</strong><p>rcloneでPDFを取得し、ローカルPCでテキストとページを抽出します。</p></li>
+      <li><span class="step">03 / GENERATE</span><strong>日本語の対話と音声</strong><p>ローカルLLMで台本を作成し、CPUのKokoroで2話者音声を生成します。</p></li>
+      <li><span class="step">04 / OUTPUT</span><strong>MP3と要約を保存</strong><p>MP3、ページ付き要約、台本などをDriveのOutputフォルダへ保存します。</p></li>
+    </ol>
+    <p class="small">PDF原本はInboxに残り、処理用コピーはProcessingに保存されます。エラー情報はローカルと、送信可能な場合はFailedに保存されます。</p>
+  </section>
+  <section class="section" aria-labelledby="features-title">
+    <h2 id="features-title">主な機能</h2>
+    <div class="cards">
+      <article class="card"><h3>日本語の2話者解説</h3><p>背景、手法、実験結果、限界、応用を対話形式で整理します。標準の音声長の目標は10〜20分です。</p></article>
+      <article class="card"><h3>原文へ戻れる要約</h3><p>PDFのページ番号と原文抜粋を要約に添え、内容を原論文と照らし合わせられます。</p></article>
+      <article class="card"><h3>保存して聞き返す</h3><p>生成したMP3をDriveから端末へダウンロードし、お使いの再生アプリで聞けます。</p></article>
+    </div>
+  </section>
+  <section class="section two-col" aria-label="利用目的とデータの取り扱い">
+    <div><h2>個人の研究・学習のために</h2><p>利用者自身が管理するPCとGoogleアカウントで使うアプリです。このWebサイトは説明ページであり、PDFのアップロードやGoogleへのログインを受け付けません。</p><p class="small">生成内容には誤りや省略があり得ます。引用の一致検証やLLMによる監査は、解釈の正しさを保証しません。研究上の判断は原論文を確認してください。</p></div>
+    <div><h2>データの取り扱い</h2><p>LLMとTTSの推論はローカルPC上で行います。論文内容をクラウドLLM・TTS APIへ送信しません。入力・生成物はGoogle DriveとローカルPCに保存されます。</p><p>Drive接続にはrcloneとGoogle OAuthを使います。権限の範囲、保存期間、削除方法は<a href="privacy.html">プライバシーポリシー</a>をご確認ください。</p></div>
+  </section>
+  <section id="contact" class="section" aria-labelledby="contact-title">
+    <div class="contact"><p class="eyebrow">Contact</p><h2 id="contact-title">お問い合わせ</h2><p>開発・運営：<a href="https://github.com/ike-taku">ike-taku</a>（個人開発）</p><p>アプリやデータの取り扱いに関するお問い合わせは、<a href="https://github.com/ike-taku/paper-to-podcast-pages/issues">GitHub Issues</a>へお寄せください。</p><p class="small">Issuesは公開されます。PDF本文、個人情報、認証情報は投稿しないでください。個別データを公開せず、問い合わせ内容のみを記載してください。</p></div>
+  </section>
+</main>
+<footer class="footer"><div class="wrap"><p>Paper-to-Podcast · 個人用の研究支援アプリ</p><a href="https://github.com/ike-taku/paper-to-podcast-pages/issues">お問い合わせ（GitHub Issues）</a></div></footer>
+</body>
+</html>

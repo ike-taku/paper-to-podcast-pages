@@ -1,0 +1,16 @@
+# This repository contains public website assets only.
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.pyc
+rclone.conf
+*client_secret*.json
+credentials*.json
+token*.json
+*.pdf
+*.mp3
+*.wav
+data/
+.DS_Store

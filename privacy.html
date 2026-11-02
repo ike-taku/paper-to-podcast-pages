@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Paper-to-PodcastがGoogle Driveから取得するデータ、ローカル処理、保存・削除、第三者提供、Limited Useに関する説明。">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>プライバシーポリシー | Paper-to-Podcast</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">本文へスキップ</a>
+<header class="header"><div class="wrap">
+  <a class="brand" href="index.html"><img src="favicon.svg" width="32" height="32" alt="">Paper-to-Podcast</a>
+  <nav class="nav" aria-label="メインナビゲーション">
+    <a href="index.html">アプリについて</a>
+    <a href="privacy.html" aria-current="page">プライバシー</a>
+  </nav>
+</div></header>
+<main id="main" class="wrap document">
+  <div class="hero"><p class="eyebrow">Paper-to-Podcast</p><h1>プライバシーポリシー</h1><p class="lead">Google Driveのデータを、何のために取得し、どこで処理・保存するかを説明します。</p><p class="meta">制定・最終更新日：2026年11月2日</p></div>
+  <p>本ポリシーは、ike-takuが個人開発・運営する「Paper-to-Podcast」の現行実装と、この公開説明サイトに適用します。本アプリは、利用者が自身のPCとGoogleアカウントで利用する研究・学習支援ツールです。</p>
+  <nav class="toc" aria-label="プライバシーポリシーの目次"><strong>目次</strong><ol>
+    <li><a href="#data">取得するデータ</a></li><li><a href="#permissions">Driveの権限と対象範囲</a></li><li><a href="#purpose">利用目的と処理</a></li><li><a href="#storage">保存先と保存期間</a></li><li><a href="#sharing">第三者提供と外部通信</a></li><li><a href="#limited-use">Limited UseとAI利用</a></li><li><a href="#deletion">削除と利用停止</a></li><li><a href="#security">安全管理の実装範囲</a></li><li><a href="#website">このWebサイトについて</a></li><li><a href="#changes">変更とお問い合わせ</a></li>
+  </ol></nav>
+  <section id="data"><h2>1. 取得・生成するデータ</h2><ul>
+    <li>設定したDriveフォルダ内のファイル一覧とメタデータ（ファイル名、パス、ファイルID、サイズ、更新日時、フォルダ情報など）。</li>
+    <li>処理対象のPDFファイルと、その本文・ページ別テキスト。PDFに個人情報が含まれる場合、その情報も処理対象になり得ます。</li>
+    <li>PDFから作成する原文抜粋・根拠、要約、日本語対話台本、発話音声、MP3、処理時間・音声長などの指標、完了情報。</li>
+    <li>重複判定のためのファイルハッシュ、処理状態・試行回数、元ファイル名、処理履歴・エラー情報。</li>
+    <li>Google Drive接続のためにrcloneが取得・管理するOAuthアクセストークンと更新トークン。</li>
+  </ul><p>本アプリはGmail、連絡先、カレンダーのデータを取得しません。Googleアカウントのパスワードをアプリへ入力する仕組みはありません。</p></section>
+  <section id="permissions"><h2>2. Driveの権限と対象範囲</h2><p>スマートフォンや他のアプリが保存したPDFを取得し、生成物を保存するため、Google Driveの通常の読み書き権限（<code>https://www.googleapis.com/auth/drive</code>）をrcloneで設定する構成です。</p><div class="note"><p>このOAuth権限は、設定フォルダだけに限定された権限ではありません。認可されたGoogleアカウントのDriveファイルに広くアクセスできる権限です。</p></div><p>アプリの通常処理は、利用者が指定したベースフォルダのInbox、Processing、Output、Failedと、その配下を対象にします。Inbox直下のPDFを処理し、必要に応じて設定フォルダの一覧・状態を確認します。フォルダ設定による処理範囲と、OAuth権限の範囲は異なります。</p></section>
+  <section id="purpose"><h2>3. 利用目的と処理の流れ</h2><ol>
+    <li>Inboxを定期確認し、変更が安定したPDFをローカルPCへ取得します。</li>
+    <li>ファイルハッシュとSQLiteの処理キューで、重複処理と再試行を管理します。</li>
+    <li>PC上でPDFのテキストを抽出し、同じPCのLLMへ本文・抜粋・台本を渡して、日本語要約と対話を生成・監査します。</li>
+    <li>同じPCのCPU上でKokoroによる音声を生成し、FFmpegでMP3へ変換します。</li>
+    <li>MP3、要約、台本、指標、元ファイル情報、完了情報をDriveのOutputへ保存します。ProcessingにはPDFのコピーを保存し、最終失敗時はFailedへのエラー情報送信を試みます。</li>
+  </ol><p>データは、これらの利用者向け機能と、その処理の再開・重複防止・障害確認のために使用します。個人向けの中央収集サーバーへデータを集める仕組みはありません。</p></section>
+  <section id="storage"><h2>4. 保存先と保存期間</h2><ul>
+    <li><strong>ローカルPC：</strong>PDFコピー、ページ別本文、根拠と抜粋、章別台本、発話音声、MP3、要約、処理キュー、再開用ファイル、検証失敗の診断ファイル、エラー・運用ログを保存します。診断ファイルには生成途中の台本や原文抜粋が含まれる場合があります。</li>
+    <li><strong>Google Drive：</strong>Inboxの原本を残し、ProcessingにPDFコピー、Outputに生成物と元ファイル名などの情報、Failedに送信できた失敗情報を保存します。</li>
+    <li><strong>OAuth認証情報：</strong>rcloneの設定ファイルにローカル保存されます。保存場所は利用者のrclone設定によって異なります。</li>
+  </ul><p>アプリには保存期限を定めた自動削除機能がありません。データは利用者が削除するまで残ります。一時ダウンロードファイルやMP3変換後の結合用WAVは処理の一部として削除しますが、これにより保存済みPDF・発話クリップ・台本・生成物がすべて削除されるわけではありません。</p><p>利用者が別途作成したバックアップ、端末へのダウンロード、OSやサービス側の履歴にもコピーが残る場合があります。</p></section>
+  <section id="sharing"><h2>5. 第三者提供・外部サービスへの送信</h2><p>本アプリの機能として、Googleユーザーデータや生成物を販売したり、広告事業者・データ仲介業者などへ提供したりしません。クラウドLLM・TTS APIへPDF本文、抜粋、台本、音声を送信する処理はありません。</p><p>Google Driveへの取得・保存・認証では、利用者が認可したGoogleとの間でデータを送受信します。Drive上の既存の共有設定によっては、保存したファイルを共有相手が閲覧できます。アプリは共有設定を自動で非公開へ変更しません。Google側の取り扱いには<a href="https://policies.google.com/privacy?hl=ja">Googleのプライバシーポリシー</a>が適用されます。</p><p>初回導入やモデル・日本語辞書の取得時には、パッケージ配布元やモデル配布元へのネットワーク接続が必要です。これらのダウンロードは、論文データを送ってクラウド推論を行うものではありません。</p></section>
+  <section id="limited-use"><h2>6. Google API Services User Data Policy・Limited Use・AI利用</h2><p>Paper-to-PodcastによるGoogle APIから受け取った情報の利用、および他のアプリへの転送は、Limited Use要件を含む<a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>に従います。</p><ul>
+    <li>Googleユーザーデータは、本ポリシーで説明したPDFの取得、ローカルの要約・音声生成、結果の保存と処理管理に使用します。</li>
+    <li>Googleユーザーデータおよびその派生データを、汎用AI・機械学習モデルの学習や追加学習に使用しません。LLMとTTSは、要約・台本・音声を生成する推論にのみ使用します。</li>
+    <li>広告配信、販売、信用評価・融資判断、利用目的と無関係な分析に使用しません。</li>
+    <li>利用者自身が管理するPCとDriveで原文・出力を確認する構成です。運営者が他の利用者のデータを中央で収集・閲覧する機能はありません。個別データのサポート確認が必要な場合は、その対象と目的を説明し、明示的な同意なく閲覧を求めません。</li>
+  </ul></section>
+  <section id="deletion"><h2>7. データの削除・アクセス取り消し・利用停止</h2><ol>
+    <li>まずPC上のworkerを停止し、新しいダウンロードや再生成を止めます。</li>
+    <li>DriveのInbox、Processing、Output、Failedから不要なファイルを利用者が手動で削除します。InboxにPDFを残したままローカル履歴を消すと、再取得・再生成される場合があります。</li>
+    <li>ローカルの設定済みデータディレクトリからPDF、テキスト、音声、キュー、再開・診断・失敗ファイルを削除します。運用ログ、バックアップ、他の端末のコピーも必要に応じて別途削除します。</li>
+    <li><a href="https://myaccount.google.com/connections">Googleアカウントの接続管理</a>で本アプリのアクセス権を取り消し、不要なrclone認証設定も削除します。</li>
+  </ol><p>アクセス権の取り消しだけでは、すでに保存したデータは削除されません。Driveとローカルの片方で削除しても、もう片方のコピーは削除されません。Driveのゴミ箱・版履歴やバックアップはそれぞれの仕様・設定に従って管理してください。アプリには一括削除画面や、復元不能な消去を保証する機能はありません。</p></section>
+  <section id="security"><h2>8. 安全管理の実装範囲</h2><p>LLM接続先はHTTPのループバックアドレスに制限し、クラウド推論への自動フォールバックを行いません。推論処理は利用者自身のPCで行い、通常の運用ではOAuth認証情報を公開ページやコードリポジトリに含めません。</p><p>アプリ独自の保存時暗号化、独自の認証基盤、利用者別のアクセス制御画面、定期的な自動削除は実装していません。ローカル保存先の保護は、PCのOS権限、ディスク設定、アカウント管理に依存します。Google Driveの共有範囲、PCのアクセス権、認証設定の保管は利用者が管理してください。</p></section>
+  <section id="website"><h2>9. この公開Webサイトについて</h2><p>このサイトはGitHub Pages上の静的な説明ページです。サイト自体にはGoogleログイン、PDFアップロード、問い合わせフォーム、アクセス解析、広告、外部フォント、Cookieを設定するスクリプトを設置していません。DriveのPDFや認証情報をこのサイトへ送る仕組みはありません。</p><p>ページの配信に伴い、ホスティング提供元のGitHubがIPアドレスなどのアクセス情報を処理する場合があります。詳しくは<a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHubのプライバシーに関する声明</a>をご確認ください。外部リンク先では各サービスの方針が適用されます。</p></section>
+  <section id="changes"><h2>10. 変更とお問い合わせ</h2><p>本ポリシーを変更した場合は、このページの更新日と内容を更新します。Googleユーザーデータの利用目的や共有先を変更する場合は、変更前に利用者へ説明し、必要な同意を得ます。</p><p>開発・運営：<a href="https://github.com/ike-taku">ike-taku</a>（個人開発）<br>連絡先：<a href="https://github.com/ike-taku/paper-to-podcast-pages/issues">Paper-to-PodcastのGitHub Issues</a></p><p class="small">Issuesは公開の窓口です。PDF、個人情報、OAuthクライアントシークレット、アクセストークン、更新トークンは投稿しないでください。</p></section>
+</main>
+<footer class="footer"><div class="wrap"><p>Paper-to-Podcast · 個人用の研究支援アプリ</p><a href="https://github.com/ike-taku/paper-to-podcast-pages/issues">お問い合わせ（GitHub Issues）</a></div></footer>
+</body>
+</html>
